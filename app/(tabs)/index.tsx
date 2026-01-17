@@ -1,11 +1,12 @@
 
 import MangaCard from '@/components/MangaCard'
 import SectionHeader from '@/components/SectionHeader'
+import { HomeSkeleton } from '@/components/ui/Skeleton'
 import { useCategoryList, useHomeManga } from '@/hooks/useManga'
 import { Ionicons } from '@expo/vector-icons'
 import { Stack, useRouter } from 'expo-router'
 import React from 'react'
-import { ActivityIndicator, FlatList, RefreshControl, SafeAreaView, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, RefreshControl, SafeAreaView, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native'
 
 export default function HomeScreen() {
   const { data: homeData, isLoading, error, refetch } = useHomeManga()
@@ -17,9 +18,16 @@ export default function HomeScreen() {
   }, [])
 
   if (isLoading) {
+    return <HomeSkeleton />
+  }
+
+  if (error) {
     return (
-      <View className="flex-1 justify-center items-center bg-white dark:bg-black">
-        <ActivityIndicator size="large" color="#FF5555" />
+      <View className="flex-1 justify-center items-center bg-[#FFF0F5]">
+        <Text className="text-pink-500 font-bold mb-2">Opps! Something went wrong.</Text>
+        <TouchableOpacity onPress={() => refetch()} className="bg-pink-400 px-4 py-2 rounded-full">
+          <Text className="text-white font-bold">Try Again</Text>
+        </TouchableOpacity>
       </View>
     )
   }
@@ -30,33 +38,58 @@ export default function HomeScreen() {
   const popularFeed = homeData?.data.items.slice(15) || []
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-black">
+    <SafeAreaView className="flex-1 bg-[#FFF0F5] dark:bg-black">
       <Stack.Screen options={{ headerShown: false }} />
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFF0F5" />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#FF5555" />
+          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#FF9EB5" />
         }
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: 120 }}
       >
-        {/* Header Section */}
-        <View className="px-5 pt-4 pb-2 flex-row justify-between items-center">
+        {/* Kawaii Header */}
+        <View className="px-5 pt-8 pb-4 flex-row justify-between items-center bg-[#FFF0F5]">
           <View>
-            <Text className="text-sm font-bold text-gray-400 uppercase tracking-widest">Good Morning</Text>
-            <Text className="text-2xl font-black text-black dark:text-white">Otaku World</Text>
+            <Text className="text-xs font-bold text-pink-400 uppercase tracking-widest mb-1">Welcome Back!</Text>
+            <Text className="text-3xl font-black text-gray-800 dark:text-white">
+              Manga<Text className="text-pink-500">Cute 🌸</Text>
+            </Text>
           </View>
-          <TouchableOpacity className="bg-gray-100 dark:bg-zinc-800 p-2 rounded-full">
-            <Ionicons name="notifications-outline" size={24} color="#FF5555" />
+          <TouchableOpacity className="bg-white border border-pink-100 p-2.5 rounded-full shadow-sm shadow-pink-200">
+            <Ionicons name="notifications" size={22} color="#FF9EB5" />
           </TouchableOpacity>
         </View>
 
+        {/* Categories Pill List - Kawaii Style */}
+        <View className="mb-6">
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20 }}>
+            {categories?.data.items.slice(0, 8).map((cat, index) => (
+              <TouchableOpacity
+                key={cat._id}
+                onPress={() => router.push({ pathname: '/(tabs)/explore', params: { category: cat.slug } })}
+                className={`mr-3 px-5 py-2.5 rounded-full border ${index === 0
+                    ? 'bg-pink-400 border-pink-400'
+                    : 'bg-white border-pink-100'
+                  }`}
+                style={{ elevation: index === 0 ? 4 : 1, shadowColor: '#FF9EB5' }}
+              >
+                <Text className={`font-bold ${index === 0 ? 'text-white' : 'text-gray-500'}`}>
+                  {cat.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
         {/* Featured Carousel */}
-        <View className="mt-4">
-          <View className="px-5 mb-3 flex-row items-center">
-            <Ionicons name="flame" size={20} color="#FF5555" style={{ marginRight: 6 }} />
-            <Text className="text-lg font-bold text-black dark:text-white">Trending Now</Text>
+        <View className="mb-8">
+          <View className="px-5 mb-4 flex-row items-center">
+            <View className="bg-yellow-400 p-1 rounded-full mr-2">
+              <Ionicons name="star" size={14} color="white" />
+            </View>
+            <Text className="text-xl font-black text-gray-800">Must Read!</Text>
           </View>
           <FlatList
             horizontal
@@ -70,26 +103,9 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* Categories Pill List */}
-        <View className="mt-8">
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20 }}>
-            {categories?.data.items.slice(0, 8).map((cat, index) => (
-              <TouchableOpacity
-                key={cat._id}
-                onPress={() => router.push({ pathname: '/(tabs)/explore', params: { category: cat.slug } })}
-                className={`mr-3 px-6 py-3 rounded-2xl ${index === 0 ? 'bg-black dark:bg-white' : 'bg-gray-100 dark:bg-zinc-800'}`}
-              >
-                <Text className={`font-bold ${index === 0 ? 'text-white dark:text-black' : 'text-gray-600 dark:text-gray-300'}`}>
-                  {cat.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
         {/* New Arrivals */}
-        <View className="mt-8">
-          <SectionHeader title="New Arrivals" />
+        <View className="mb-6">
+          <SectionHeader title="Fresh Updates ✨" />
           <FlatList
             horizontal
             data={newArrivals}
@@ -97,7 +113,7 @@ export default function HomeScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 20 }}
             renderItem={({ item, index }) => (
-              <View className="mr-4 w-[140px]">
+              <View className="mr-5 w-[150px]">
                 <MangaCard manga={item} index={index} />
               </View>
             )}
@@ -105,8 +121,8 @@ export default function HomeScreen() {
         </View>
 
         {/* Popular / Grid */}
-        <View className="mt-4 px-5">
-          <SectionHeader title="Popular Feed" />
+        <View className="px-5">
+          <SectionHeader title="Popular Now 🔥" />
           <View className="flex-row flex-wrap justify-between">
             {popularFeed.map((manga, index) => (
               <View key={manga._id} className="mb-2">

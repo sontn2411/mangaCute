@@ -2,6 +2,7 @@
 import { IconSymbol } from '@/components/ui/icon-symbol'
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs'
 import { BlurView } from 'expo-blur'
+import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Animated, { useAnimatedStyle, useDerivedValue, withSpring, withTiming } from 'react-native-reanimated'
@@ -33,27 +34,27 @@ function TabBarItem({
   onPress: () => void,
   onLongPress: () => void
 }) {
-  // Animation for icon scale
+  // Bouncier spring for Kawaii feel
   const scale = useDerivedValue(() => {
-    return withSpring(isFocused ? 1.2 : 1, { damping: 10, stiffness: 100 })
+    return withSpring(isFocused ? 1.3 : 1, { damping: 8, stiffness: 150 })
   })
 
-  // Animation for label opacity/transform
   const labelStyle = useAnimatedStyle(() => {
     return {
       opacity: withTiming(isFocused ? 1 : 0, { duration: 200 }),
       transform: [{ translateY: withSpring(isFocused ? 0 : 10) }],
-      // display: isFocused ? 'flex' : 'none' // optimize layout
     }
   })
 
   const iconStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ scale: scale.value }, { translateY: withSpring(isFocused ? -6 : 0) }]
+      transform: [{ scale: scale.value }, { translateY: withSpring(isFocused ? -8 : 0) }]
     }
   })
 
   const iconName = TAB_ICONS[route.name] || 'house.fill'
+  const activeColor = '#FF7A9A'
+  const inactiveColor = '#D1C4E9'
 
   return (
     <TouchableOpacity
@@ -65,15 +66,28 @@ function TabBarItem({
       <Animated.View style={iconStyle}>
         <IconSymbol
           name={iconName}
-          size={26}
-          color={isFocused ? '#FF5555' : '#aaa'}
+          size={28}
+          color={isFocused ? activeColor : inactiveColor}
         />
       </Animated.View>
       <Animated.View style={[styles.labelContainer, labelStyle]}>
-        <Text style={styles.label}>
+        <Text style={[styles.label, { color: activeColor }]}>
           {TAB_LABELS[route.name] || route.name}
         </Text>
       </Animated.View>
+      {isFocused && (
+        <Animated.View
+          entering={undefined}
+          style={{
+            position: 'absolute',
+            bottom: 4,
+            width: 4,
+            height: 4,
+            borderRadius: 2,
+            backgroundColor: activeColor
+          }}
+        />
+      )}
     </TouchableOpacity>
   )
 }
@@ -82,10 +96,15 @@ export default function CustomTabBar({ state, descriptors, navigation }: BottomT
   const insets = useSafeAreaInsets()
 
   return (
-    <View style={[styles.container, { paddingBottom: insets.bottom + 10 }]}>
+    <View style={[styles.container, { paddingBottom: insets.bottom + 15 }]}>
+      <View style={styles.shadowLayer} />
       <View style={styles.blurWrapper}>
-        <BlurView intensity={90} tint="light" style={StyleSheet.absoluteFill} />
-        {/* Optional: Add a subtle gradient layer if needed, but blur is clean */}
+        <BlurView intensity={40} tint="light" style={StyleSheet.absoluteFill} />
+        {/* Pink Gradient Overlay for that "Candy" look */}
+        <LinearGradient
+          colors={['rgba(255, 235, 238, 0.9)', 'rgba(255, 255, 255, 0.95)']}
+          style={StyleSheet.absoluteFill}
+        />
 
         <View style={styles.tabsContainer}>
           {state.routes.map((route, index) => {
@@ -134,24 +153,25 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    // Transparent container to allow content to show behind
+  },
+  shadowLayer: {
+    position: 'absolute',
+    bottom: 12,
+    width: Dimensions.get('window').width - 48,
+    height: 70,
+    borderRadius: 40,
+    backgroundColor: '#FF9EB5',
+    opacity: 0.3,
+    transform: [{ translateY: 5 }],
   },
   blurWrapper: {
     width: Dimensions.get('window').width - 40,
-    height: 70,
-    borderRadius: 35,
+    height: 75,
+    borderRadius: 40, // Super rounded
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.7)',
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderWidth: 2,
+    borderColor: '#FFF0F5',
+    elevation: 0,
   },
   tabsContainer: {
     flexDirection: 'row',
@@ -167,11 +187,12 @@ const styles = StyleSheet.create({
   },
   labelContainer: {
     position: 'absolute',
-    bottom: 10,
+    bottom: 14,
   },
   label: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#FF5555',
+    fontSize: 11,
+    fontWeight: '800', // Thicker font
+    textTransform: 'uppercase', // Cute small caps
+    letterSpacing: 0.5,
   }
 })
