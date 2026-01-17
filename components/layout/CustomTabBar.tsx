@@ -17,10 +17,10 @@ const TAB_ICONS: Record<string, any> = {
 }
 
 const TAB_LABELS: Record<string, string> = {
-  index: 'Home',
-  explore: 'Explore',
-  favorites: 'Favorites',
-  downloads: 'Download',
+  index: 'Trang chủ',
+  explore: 'Khám phá',
+  favorites: 'Yêu thích',
+  downloads: 'Đã tải',
 }
 
 function TabBarItem({
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     bottom: 14,
   },
   label: {
-    fontSize: 11,
+    fontSize: 8,
     fontWeight: '800', // Thicker font
     textTransform: 'uppercase', // Cute small caps
     letterSpacing: 0.5,

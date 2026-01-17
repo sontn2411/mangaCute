@@ -24,9 +24,9 @@ export default function HomeScreen() {
   if (error) {
     return (
       <View className="flex-1 justify-center items-center bg-[#FFF0F5]">
-        <Text className="text-pink-500 font-bold mb-2">Opps! Something went wrong.</Text>
+        <Text className="text-pink-500 font-bold mb-2">Rất tiếc! Đã có lỗi xảy ra.</Text>
         <TouchableOpacity onPress={() => refetch()} className="bg-pink-400 px-4 py-2 rounded-full">
-          <Text className="text-white font-bold">Try Again</Text>
+          <Text className="text-white font-bold">Thử lại</Text>
         </TouchableOpacity>
       </View>
     )
@@ -52,7 +52,7 @@ export default function HomeScreen() {
         {/* Kawaii Header */}
         <View className="px-5 pt-8 pb-4 flex-row justify-between items-center bg-[#FFF0F5]">
           <View>
-            <Text className="text-xs font-bold text-pink-400 uppercase tracking-widest mb-1">Welcome Back!</Text>
+            <Text className="text-xs font-bold text-pink-400 uppercase tracking-widest mb-1">Chào mừng trở lại!</Text>
             <Text className="text-3xl font-black text-gray-800 dark:text-white">
               Manga<Text className="text-pink-500">Cute 🌸</Text>
             </Text>
@@ -89,7 +89,7 @@ export default function HomeScreen() {
             <View className="bg-yellow-400 p-1 rounded-full mr-2">
               <Ionicons name="star" size={14} color="white" />
             </View>
-            <Text className="text-xl font-black text-gray-800">Must Read!</Text>
+            <Text className="text-xl font-black text-gray-800">Đáng đọc!</Text>
           </View>
           <FlatList
             horizontal
@@ -105,7 +105,7 @@ export default function HomeScreen() {
 
         {/* New Arrivals */}
         <View className="mb-6">
-          <SectionHeader title="Fresh Updates ✨" />
+          <SectionHeader title="Truyện mới cập nhật ✨" />
           <FlatList
             horizontal
             data={newArrivals}
@@ -122,7 +122,7 @@ export default function HomeScreen() {
 
         {/* Popular / Grid */}
         <View className="px-5">
-          <SectionHeader title="Popular Now 🔥" />
+          <SectionHeader title="Đang hot 🔥" />
           <View className="flex-row flex-wrap justify-between">
             {popularFeed.map((manga, index) => (
               <View key={manga._id} className="mb-2">

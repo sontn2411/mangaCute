@@ -14,8 +14,20 @@ export const unstable_settings = {
   anchor: '(tabs)',
 }
 
+import * as NavigationBar from 'expo-navigation-bar'
+import { useEffect } from 'react'
+import { Platform } from 'react-native'
+
 export default function RootLayout() {
   const colorScheme = useColorScheme()
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      NavigationBar.setVisibilityAsync('hidden')
+      NavigationBar.setBehaviorAsync('overlay-swipe')
+      NavigationBar.setBackgroundColorAsync('#ffffff00')
+    }
+  }, [])
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

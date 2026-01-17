@@ -13,6 +13,17 @@ import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated'
 const CDN_URL = 'https://otruyenapi.com/uploads/comics/'
 
 
+function shortenTitle(title: string, maxLength = 16) {
+    const match = title.match(/\[Chap[^\]]+\]$/)
+    const suffix = match ? match[0] : ''
+    const main = suffix ? title.replace(suffix, '').trim() : title
+
+    if (main.length <= maxLength) return title
+
+    return `${main.slice(0, maxLength)}… ${suffix}`
+}
+
+
 export default function MangaDetailScreen() {
     const { slug } = useLocalSearchParams<{ slug: string }>()
     const { data, isLoading } = useMangaDetail(slug)
@@ -53,6 +64,8 @@ export default function MangaDetailScreen() {
         : `${CDN_URL}${manga.thumb_url}`
 
     const chapters = manga.chapters?.[0]?.server_data || []
+
+
 
     return (
         <View className="flex-1 bg-white dark:bg-black">
@@ -111,7 +124,7 @@ export default function MangaDetailScreen() {
                             ))}
                         </View>
                         <Text className="text-4xl font-black text-white mb-2 shadow-sm leading-10 shadow-black">{manga.name}</Text>
-                        <Text className="text-gray-300 font-medium text-sm">Updated: {new Date(manga.updatedAt).toLocaleDateString()}</Text>
+                        <Text className="text-gray-300 font-medium text-sm">Cập nhật: {new Date(manga.updatedAt).toLocaleDateString()}</Text>
                     </Animated.View>
                 </View>
 
@@ -120,7 +133,7 @@ export default function MangaDetailScreen() {
 
                     {/* Description */}
                     <Animated.View entering={FadeInDown.delay(400)}>
-                        <Text className="text-lg font-bold text-black dark:text-white mb-2">Synopsis</Text>
+                        <Text className="text-lg font-bold text-black dark:text-white mb-2">Nội dung</Text>
                         <Text
                             className="text-gray-600 dark:text-gray-300 leading-6 text-base"
                             numberOfLines={isDescriptionExpanded ? undefined : 3}
@@ -128,7 +141,7 @@ export default function MangaDetailScreen() {
                             {manga.content?.replace(/<[^>]+>/g, '').trim()}
                         </Text>
                         <TouchableOpacity onPress={() => setIsDescriptionExpanded(!isDescriptionExpanded)} className="mt-2">
-                            <Text className="text-red-500 font-bold">{isDescriptionExpanded ? 'Show Less' : 'Read More'}</Text>
+                            <Text className="text-red-500 font-bold">{isDescriptionExpanded ? 'Thu gọn' : 'Xem thêm'}</Text>
                         </TouchableOpacity>
                     </Animated.View>
 
@@ -137,15 +150,15 @@ export default function MangaDetailScreen() {
 
                     {/* Chapters Header */}
                     <View className="flex-row justify-between items-end mb-4">
-                        <Text className="text-2xl font-black text-black dark:text-white">Chapters</Text>
+                        <Text className="text-2xl font-black text-black dark:text-white">Chương</Text>
                         <Text className="text-red-500 font-bold bg-red-50 dark:bg-red-900/10 px-3 py-1 rounded-full text-xs">
-                            {chapters.length} Releases
+                            {chapters.length} Chương
                         </Text>
                     </View>
 
                     {/* List */}
                     <View>
-                        {chapters.map((chapter, index) => {
+                        {[...chapters].reverse().map((chapter, index) => {
                             const downloadState = downloads[chapter.chapter_api_data]
                             const isDownloaded = downloadState?.status === 'completed'
                             const isDownloading = downloadState?.status === 'downloading'
@@ -170,13 +183,11 @@ export default function MangaDetailScreen() {
                                                 </View>
                                                 <View>
                                                     <Text className="text-base font-bold text-gray-900 dark:text-white">
-                                                        Chapter {chapter.chapter_name}
+                                                        {shortenTitle(chapter.filename)}
                                                     </Text>
-                                                    {chapter.chapter_title ? (
-                                                        <Text className="text-xs text-gray-400 mt-0.5" numberOfLines={1}>
-                                                            {chapter.chapter_title}
-                                                        </Text>
-                                                    ) : null}
+                                                    {/* <Text className="text-xs text-gray-400 mt-0.5" numberOfLines={1}>
+                                                        {shortenTitle(chapter.filename)}
+                                                    </Text> */}
                                                 </View>
                                             </TouchableOpacity>
                                         </Link>
@@ -205,26 +216,28 @@ export default function MangaDetailScreen() {
                         })}
                     </View>
                 </View>
-            </ScrollView>
+            </ScrollView >
 
             {/* Floating Read Button */}
-            {chapters.length > 0 && (
-                <Animated.View entering={FadeInUp.delay(600)} className="absolute bottom-8 align-middle w-full px-12">
-                    <Link
-                        href={{
-                            pathname: '/chapter/[id]',
-                            params: { id: chapters[0].chapter_api_data }
-                        }}
-                        asChild
-                    >
-                        <TouchableOpacity className="bg-red-500 py-4 rounded-full shadow-xl shadow-red-500/40 flex-row justify-center items-center">
-                            <Ionicons name="book" size={20} color="white" style={{ marginRight: 8 }} />
-                            <Text className="text-white font-black text-lg tracking-wide uppercase">Start Reading</Text>
-                        </TouchableOpacity>
-                    </Link>
-                </Animated.View>
-            )}
+            {
+                chapters.length > 0 && (
+                    <Animated.View entering={FadeInUp.delay(600)} className="absolute bottom-8 align-middle w-full px-12">
+                        <Link
+                            href={{
+                                pathname: '/chapter/[id]',
+                                params: { id: chapters[0].chapter_api_data }
+                            }}
+                            asChild
+                        >
+                            <TouchableOpacity className="bg-red-500 py-4 rounded-full shadow-xl shadow-red-500/40 flex-row justify-center items-center">
+                                <Ionicons name="book" size={20} color="white" style={{ marginRight: 8 }} />
+                                <Text className="text-white font-black text-lg tracking-wide uppercase">Đọc ngay</Text>
+                            </TouchableOpacity>
+                        </Link>
+                    </Animated.View>
+                )
+            }
 
-        </View>
+        </View >
     )
 }

@@ -45,14 +45,14 @@ export default function TabTwoScreen() {
       <Stack.Screen options={{ headerShown: false }} />
 
       <View className="px-4 py-3 pb-2">
-        <Text className="text-3xl font-black mb-4 text-black dark:text-white tracking-tight">Explore</Text>
+        <Text className="text-3xl font-black mb-4 text-black dark:text-white tracking-tight">Khám phá</Text>
 
         {/* Search Bar */}
         <View className="flex-row items-center bg-gray-100 dark:bg-zinc-800 rounded-2xl px-4 py-3 mb-4 shadow-sm">
           <Ionicons name="search" size={22} color="#888" />
           <TextInput
             className="flex-1 ml-3 text-base text-black dark:text-white font-medium"
-            placeholder="Search manga, authors..."
+            placeholder="Tìm kiếm truyện, tác giả..."
             placeholderTextColor="#888"
             value={keyword}
             onChangeText={setKeyword}
@@ -103,7 +103,7 @@ export default function TabTwoScreen() {
       ) : isError ? (
         <View className="flex-1 justify-center items-center px-8">
           <Ionicons name="alert-circle-outline" size={48} color="#FF5555" />
-          <Text className="text-gray-500 mt-2 text-center">Failed to load content.</Text>
+          <Text className="text-gray-500 mt-2 text-center">Không tải được nội dung.</Text>
         </View>
       ) : (activeQuery && data) ? (
         <FlatList
@@ -120,7 +120,7 @@ export default function TabTwoScreen() {
           )}
           ListEmptyComponent={
             <View className="mt-20 items-center">
-              <Text className="text-gray-500 font-medium">No results found.</Text>
+              <Text className="text-gray-500 font-medium">Không tìm thấy kết quả.</Text>
             </View>
           }
         />
@@ -129,7 +129,7 @@ export default function TabTwoScreen() {
         <ScrollView className="flex-1 px-4 mt-4" showsVerticalScrollIndicator={false}>
           <View className="items-center justify-center py-20 opacity-50">
             <Ionicons name="compass-outline" size={80} color="#ccc" />
-            <Text className="text-gray-400 mt-4 text-center text-lg font-medium">Select a category or search{"\n"}to begin your adventure</Text>
+            <Text className="text-gray-400 mt-4 text-center text-lg font-medium">Chọn thể loại hoặc tìm kiếm{"\n"}để bắt đầu hành trình của bạn</Text>
           </View>
         </ScrollView>
       )}
