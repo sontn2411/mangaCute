@@ -108,7 +108,7 @@ export default function CustomTabBar({ state, descriptors, navigation }: BottomT
 
         <View style={styles.tabsContainer}>
           {state.routes.map((route, index) => {
-            const { options } = descriptors[route.key]
+
             const isFocused = state.index === index
 
             const onPress = () => {

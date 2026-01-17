@@ -7,11 +7,11 @@ import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Link, Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import React, { useState } from 'react'
-import { ActivityIndicator, Dimensions, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native'
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated'
 
 const CDN_URL = 'https://otruyenapi.com/uploads/comics/'
-const { width } = Dimensions.get('window')
+
 
 export default function MangaDetailScreen() {
     const { slug } = useLocalSearchParams<{ slug: string }>()
@@ -25,7 +25,7 @@ export default function MangaDetailScreen() {
     const favorite = data?.data.item ? favorites.some(f => f._id === data.data.item._id) : false
 
     // Download Logic
-    const { downloadChapter, isChapterDownloaded, getDownloadedChapter } = useDownloads()
+    const { downloadChapter } = useDownloads()
     const downloads = useDownloads(state => state.downloads)
 
 

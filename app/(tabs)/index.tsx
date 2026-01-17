@@ -15,7 +15,7 @@ export default function HomeScreen() {
 
   const onRefresh = React.useCallback(() => {
     refetch()
-  }, [])
+  }, [refetch])
 
   if (isLoading) {
     return <HomeSkeleton />
@@ -70,8 +70,8 @@ export default function HomeScreen() {
                 key={cat._id}
                 onPress={() => router.push({ pathname: '/(tabs)/explore', params: { category: cat.slug } })}
                 className={`mr-3 px-5 py-2.5 rounded-full border ${index === 0
-                    ? 'bg-pink-400 border-pink-400'
-                    : 'bg-white border-pink-100'
+                  ? 'bg-pink-400 border-pink-400'
+                  : 'bg-white border-pink-100'
                   }`}
                 style={{ elevation: index === 0 ? 4 : 1, shadowColor: '#FF9EB5' }}
               >
