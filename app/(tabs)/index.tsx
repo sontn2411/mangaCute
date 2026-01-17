@@ -1,98 +1,122 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import MangaCard from '@/components/MangaCard'
+import SectionHeader from '@/components/SectionHeader'
+import { useCategoryList, useHomeManga } from '@/hooks/useManga'
+import { Ionicons } from '@expo/vector-icons'
+import { Stack, useRouter } from 'expo-router'
+import React from 'react'
+import { ActivityIndicator, FlatList, RefreshControl, SafeAreaView, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native'
 
 export default function HomeScreen() {
+  const { data: homeData, isLoading, error, refetch } = useHomeManga()
+  const { data: categories } = useCategoryList()
+  const router = useRouter()
+
+  const onRefresh = React.useCallback(() => {
+    refetch()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-white dark:bg-black">
+        <ActivityIndicator size="large" color="#FF5555" />
+      </View>
+    )
+  }
+
+  // Filter items for sections
+  const featuredItems = homeData?.data.items.slice(0, 5) || []
+  const newArrivals = homeData?.data.items.slice(5, 15) || []
+  const popularFeed = homeData?.data.items.slice(15) || []
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaView className="flex-1 bg-white dark:bg-black">
+      <Stack.Screen options={{ headerShown: false }} />
+      <StatusBar barStyle="dark-content" />
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#FF5555" />
+        }
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
+        {/* Header Section */}
+        <View className="px-5 pt-4 pb-2 flex-row justify-between items-center">
+          <View>
+            <Text className="text-sm font-bold text-gray-400 uppercase tracking-widest">Good Morning</Text>
+            <Text className="text-2xl font-black text-black dark:text-white">Otaku World</Text>
+          </View>
+          <TouchableOpacity className="bg-gray-100 dark:bg-zinc-800 p-2 rounded-full">
+            <Ionicons name="notifications-outline" size={24} color="#FF5555" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Featured Carousel */}
+        <View className="mt-4">
+          <View className="px-5 mb-3 flex-row items-center">
+            <Ionicons name="flame" size={20} color="#FF5555" style={{ marginRight: 6 }} />
+            <Text className="text-lg font-bold text-black dark:text-white">Trending Now</Text>
+          </View>
+          <FlatList
+            horizontal
+            data={featuredItems}
+            keyExtractor={item => item._id}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 20 }}
+            renderItem={({ item }) => (
+              <MangaCard manga={item} isFeatured />
+            )}
+          />
+        </View>
+
+        {/* Categories Pill List */}
+        <View className="mt-8">
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20 }}>
+            {categories?.data.items.slice(0, 8).map((cat, index) => (
+              <TouchableOpacity
+                key={cat._id}
+                onPress={() => router.push({ pathname: '/(tabs)/explore', params: { category: cat.slug } })}
+                className={`mr-3 px-6 py-3 rounded-2xl ${index === 0 ? 'bg-black dark:bg-white' : 'bg-gray-100 dark:bg-zinc-800'}`}
+              >
+                <Text className={`font-bold ${index === 0 ? 'text-white dark:text-black' : 'text-gray-600 dark:text-gray-300'}`}>
+                  {cat.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* New Arrivals */}
+        <View className="mt-8">
+          <SectionHeader title="New Arrivals" />
+          <FlatList
+            horizontal
+            data={newArrivals}
+            keyExtractor={item => item._id}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 20 }}
+            renderItem={({ item, index }) => (
+              <View className="mr-4 w-[140px]">
+                <MangaCard manga={item} index={index} />
+              </View>
+            )}
+          />
+        </View>
+
+        {/* Popular / Grid */}
+        <View className="mt-4 px-5">
+          <SectionHeader title="Popular Feed" />
+          <View className="flex-row flex-wrap justify-between">
+            {popularFeed.map((manga, index) => (
+              <View key={manga._id} className="mb-2">
+                <MangaCard manga={manga} index={index + 15} />
+              </View>
+            ))}
+          </View>
+        </View>
+
+      </ScrollView>
+    </SafeAreaView>
+  )
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});

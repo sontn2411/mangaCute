@@ -1,112 +1,138 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+import MangaCard from '@/components/MangaCard'
+import { useCategoryList, useCategoryManga, useSearchManga } from '@/hooks/useManga'
+import { Ionicons } from '@expo/vector-icons'
+import { Stack } from 'expo-router'
+import React, { useState } from 'react'
+import { ActivityIndicator, FlatList, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 export default function TabTwoScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
-  );
-}
+  const [keyword, setKeyword] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});
+  // Search Query
+  const searchQuery = useSearchManga(searchTerm)
+
+  // Category List Query
+  const { data: categoryList, isLoading: isCategoriesLoading } = useCategoryList()
+
+  // Category Data Query
+  const categoryQuery = useCategoryManga(selectedCategory || '')
+
+  // Determine which data to show
+  const isSearching = !!searchTerm
+  const isCategory = !!selectedCategory
+
+  const activeQuery = isSearching ? searchQuery : (isCategory ? categoryQuery : null)
+  const isLoading = activeQuery?.isLoading
+  const isError = activeQuery?.isError
+  const data = activeQuery?.data
+
+  const handleSearch = () => {
+    setSelectedCategory(null) // Clear category when searching
+    setSearchTerm(keyword)
+  }
+
+  const handleCategorySelect = (slug: string) => {
+    setKeyword('') // Clear search text
+    setSearchTerm('') // Clear search query
+    setSelectedCategory(slug === selectedCategory ? null : slug) // Toggle
+  }
+
+  return (
+    <SafeAreaView className="flex-1 bg-white dark:bg-black">
+      <Stack.Screen options={{ headerShown: false }} />
+
+      <View className="px-4 py-3 pb-2">
+        <Text className="text-3xl font-black mb-4 text-black dark:text-white tracking-tight">Explore</Text>
+
+        {/* Search Bar */}
+        <View className="flex-row items-center bg-gray-100 dark:bg-zinc-800 rounded-2xl px-4 py-3 mb-4 shadow-sm">
+          <Ionicons name="search" size={22} color="#888" />
+          <TextInput
+            className="flex-1 ml-3 text-base text-black dark:text-white font-medium"
+            placeholder="Search manga, authors..."
+            placeholderTextColor="#888"
+            value={keyword}
+            onChangeText={setKeyword}
+            onSubmitEditing={handleSearch}
+            returnKeyType="search"
+          />
+          {keyword.length > 0 && (
+            <TouchableOpacity onPress={() => {
+              setKeyword('')
+              setSearchTerm('')
+            }}>
+              <Ionicons name="close-circle" size={22} color="#888" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Categories Horizontal List */}
+        <View className="mb-2 h-10">
+          {isCategoriesLoading ? (
+            <ActivityIndicator size="small" color="#FF5555" />
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 16 }}>
+              {categoryList?.data.items.map((cat, index) => (
+                <TouchableOpacity
+                  key={cat._id + index}
+                  onPress={() => handleCategorySelect(cat.slug)}
+                  className={`mr-3 px-5 py-2 rounded-full border ${selectedCategory === cat.slug
+                    ? 'bg-red-500 border-red-500'
+                    : 'bg-transparent border-gray-300 dark:border-zinc-700'
+                    }`}
+                >
+                  <Text className={`font-bold capitalize ${selectedCategory === cat.slug ? 'text-white' : 'text-gray-600 dark:text-gray-300'
+                    }`}>
+                    {cat.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
+        </View>
+      </View>
+
+      {/* Content Area */}
+      {isLoading ? (
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#FF5555" />
+        </View>
+      ) : isError ? (
+        <View className="flex-1 justify-center items-center px-8">
+          <Ionicons name="alert-circle-outline" size={48} color="#FF5555" />
+          <Text className="text-gray-500 mt-2 text-center">Failed to load content.</Text>
+        </View>
+      ) : (activeQuery && data) ? (
+        <FlatList
+          data={data?.data.items}
+          keyExtractor={(item) => item._id}
+          numColumns={2}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100, paddingTop: 10 }}
+          columnWrapperStyle={{ justifyContent: 'space-between' }}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <View className="mb-6 w-[48%]">
+              <MangaCard manga={item} />
+            </View>
+          )}
+          ListEmptyComponent={
+            <View className="mt-20 items-center">
+              <Text className="text-gray-500 font-medium">No results found.</Text>
+            </View>
+          }
+        />
+      ) : (
+        /* Initial State / Empty State */
+        <ScrollView className="flex-1 px-4 mt-4" showsVerticalScrollIndicator={false}>
+          <View className="items-center justify-center py-20 opacity-50">
+            <Ionicons name="compass-outline" size={80} color="#ccc" />
+            <Text className="text-gray-400 mt-4 text-center text-lg font-medium">Select a category or search{"\n"}to begin your adventure</Text>
+          </View>
+        </ScrollView>
+      )}
+    </SafeAreaView>
+  )
+}
