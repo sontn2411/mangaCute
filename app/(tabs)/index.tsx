@@ -38,9 +38,9 @@ export default function HomeScreen() {
   const popularFeed = homeData?.data.items.slice(15) || []
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFF0F5] dark:bg-black">
+    <SafeAreaView className="flex-1 bg-background dark:bg-background-dark">
       <Stack.Screen options={{ headerShown: false }} />
-      <StatusBar barStyle="dark-content" backgroundColor="#FFF0F5" />
+      <StatusBar barStyle="default" />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -50,14 +50,14 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: 120 }}
       >
         {/* Kawaii Header */}
-        <View className="px-5 pt-8 pb-4 flex-row justify-between items-center bg-[#FFF0F5]">
+        <View className="px-5 pt-8 pb-4 flex-row justify-between items-center bg-background dark:bg-background-dark">
           <View>
-            <Text className="text-xs font-bold text-pink-400 uppercase tracking-widest mb-1">Chào mừng trở lại!</Text>
-            <Text className="text-3xl font-black text-gray-800 dark:text-white">
-              Manga<Text className="text-pink-500">Cute 🌸</Text>
+            <Text className="text-xs font-bold text-primary dark:text-primary-dark uppercase tracking-widest mb-1">Welcome Back!</Text>
+            <Text className="text-3xl font-black text-text dark:text-text-dark">
+              Manga<Text className="text-primary dark:text-primary-dark">Cute 🌸</Text>
             </Text>
           </View>
-          <TouchableOpacity className="bg-white border border-pink-100 p-2.5 rounded-full shadow-sm shadow-pink-200">
+          <TouchableOpacity className="bg-surface dark:bg-surface-dark border border-border dark:border-border-dark p-2.5 rounded-full shadow-sm shadow-pink-200 dark:shadow-none">
             <Ionicons name="notifications" size={22} color="#FF9EB5" />
           </TouchableOpacity>
         </View>
@@ -70,12 +70,12 @@ export default function HomeScreen() {
                 key={cat._id}
                 onPress={() => router.push({ pathname: '/(tabs)/explore', params: { category: cat.slug } })}
                 className={`mr-3 px-5 py-2.5 rounded-full border ${index === 0
-                  ? 'bg-pink-400 border-pink-400'
-                  : 'bg-white border-pink-100'
+                    ? 'bg-primary dark:bg-primary-dark border-primary dark:border-primary-dark'
+                    : 'bg-surface dark:bg-surface-dark border-border dark:border-border-dark'
                   }`}
                 style={{ elevation: index === 0 ? 4 : 1, shadowColor: '#FF9EB5' }}
               >
-                <Text className={`font-bold ${index === 0 ? 'text-white' : 'text-gray-500'}`}>
+                <Text className={`font-bold ${index === 0 ? 'text-white' : 'text-text-sub dark:text-gray-300'}`}>
                   {cat.name}
                 </Text>
               </TouchableOpacity>
@@ -89,7 +89,7 @@ export default function HomeScreen() {
             <View className="bg-yellow-400 p-1 rounded-full mr-2">
               <Ionicons name="star" size={14} color="white" />
             </View>
-            <Text className="text-xl font-black text-gray-800">Đáng đọc!</Text>
+            <Text className="text-xl font-black text-text dark:text-text-dark">Must Read!</Text>
           </View>
           <FlatList
             horizontal
@@ -105,7 +105,7 @@ export default function HomeScreen() {
 
         {/* New Arrivals */}
         <View className="mb-6">
-          <SectionHeader title="Truyện mới cập nhật ✨" />
+          <SectionHeader title="Fresh Updates ✨" />
           <FlatList
             horizontal
             data={newArrivals}
@@ -122,7 +122,7 @@ export default function HomeScreen() {
 
         {/* Popular / Grid */}
         <View className="px-5">
-          <SectionHeader title="Đang hot 🔥" />
+          <SectionHeader title="Popular Now 🔥" />
           <View className="flex-row flex-wrap justify-between">
             {popularFeed.map((manga, index) => (
               <View key={manga._id} className="mb-2">
